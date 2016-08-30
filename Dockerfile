@@ -21,6 +21,8 @@ RUN apk add --no-cache --virtual=build-dependencies wget && \
     apk del build-dependencies && \
     ln -s "${KARAF_HOME}/bin/karaf" "/usr/bin/karaf" && \
     rm "/tmp/"* && \
+	mkdir "${KARAF_HOME}/data/log" && \
+	mkdir "${KARAF_HOME}/data/mavenIndexer" && \
     adduser -HD -u "${UID}" -h "${KARAF_HOME}" -s "/bin/sh" -G "users" "karaf" && \
     chown -R "karaf" "${KARAF_HOME}" && \
     chown "karaf" "/deploy"
