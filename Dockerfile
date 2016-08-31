@@ -2,10 +2,12 @@ FROM blackbelt/oraclejdk8
 MAINTAINER József Börcsök "jozsef.borcsok@blackbelt.hu"
 
 ARG KARAF_VERSION
-ARG HAWTIO_VERSION="1.4.65"
+ARG CELLAR_VERSION
 
 ENV KARAF_HOME="/opt/karaf" \
 	UID="${UID:-60000}"
+
+ENV HAWTIO_VERSION="1.4.65"
 
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
 
@@ -23,6 +25,7 @@ RUN apk add --no-cache --virtual=build-dependencies wget && \
     rm "/tmp/"* && \
 	mkdir "${KARAF_HOME}/data/log" && \
 	mkdir "${KARAF_HOME}/data/mavenIndexer" && \
+	mkdir "${KARAF_HOME}/collectd" && \
     adduser -HD -u "${UID}" -h "${KARAF_HOME}" -s "/bin/sh" -G "users" "karaf" && \
     chown -R "karaf" "${KARAF_HOME}" && \
     chown "karaf" "/deploy"
@@ -41,11 +44,15 @@ RUN "${KARAF_HOME}/bin/start" && \
     echo -n "Waiting to start Karaf server in Docker image ..." && \
     connecting=1; while [ ${connecting} -ne 0 ]; do sleep 2; timeout -t 10 "${KARAF_HOME}/bin/client" -h localhost version; connecting=$?; done; \
     echo "feature:repo-add mvn:io.hawt/hawtio-karaf/${HAWTIO_VERSION}/xml/features; \
+    feature:repo-add mvn:org.apache.karaf.cellar/apache-karaf-cellar/${CELLAR_VERSION}/xml/features; \
 #    feature:install webconsole; \
 #    feature:install hawtio; \
     feature:install scr" | "${KARAF_HOME}/bin/client" -h localhost -b; \
     "${KARAF_HOME}/bin/stop"; \
     rm -f "${KARAF_HOME}/instances/instance.properties"
+
+ADD "download/jcollectd.jar" "${KARAF_HOME}/collectd"
+ADD "jcollectd-conf.tar.gz" "${KARAF_HOME}/collectd"
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]
