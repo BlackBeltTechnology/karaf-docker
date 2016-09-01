@@ -13,7 +13,7 @@ ENV HAWTIO_VERSION="1.4.65" \
 
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
 
-ADD "jackson-features.xml" "/tmp"
+ADD "features/jackson-features.xml" "/tmp"
 
 # download and install Apache Karaf
 RUN apk add --no-cache --virtual=build-dependencies wget && \
@@ -29,7 +29,6 @@ RUN apk add --no-cache --virtual=build-dependencies wget && \
     rm "/tmp/apache-karaf-"* && \
 	mkdir "${KARAF_HOME}/data/log" && \
 	mkdir "${KARAF_HOME}/data/mavenIndexer" && \
-	mkdir "${KARAF_HOME}/collectd" && \
 	mv /tmp/*-features.xml "${KARAF_HOME}/data/tmp" && \
     adduser -HD -u "${UID}" -h "${KARAF_HOME}" -s "/bin/sh" -G "users" "karaf" && \
     chown -R "karaf" "${KARAF_HOME}" && \
@@ -59,9 +58,6 @@ RUN "${KARAF_HOME}/bin/start" && \
     "${KARAF_HOME}/bin/stop" && \
 	rm -f /tmp/jackson-features.xml && \
     rm -f "${KARAF_HOME}/instances/instance.properties"
-
-ADD "download/jcollectd.jar" "${KARAF_HOME}/collectd"
-ADD "jcollectd-conf.tar.gz" "${KARAF_HOME}/collectd"
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]
