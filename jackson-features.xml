@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE karaf-features [
+    <!ENTITY jacksonVersion '##JACKSON_VERSION##'>
+	<!ENTITY jaxrsSpecVersion '##JAXRS_SPEC_VERSION##'>
+	<!ENTITY staxVersion '3.1.4'>
+]>
+<features name="karaf-jackson-&jacksonVersion;"
+    xmlns="http://karaf.apache.org/xmlns/features/v1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://karaf.apache.org/xmlns/features/v1.2.1
+        http://karaf.apache.org/xmlns/features/v1.2.1
+    ">
+
+    <!-- core -->
+
+    <feature name="jackson-annotations" version="&jacksonVersion;">
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-core" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-annotations</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-databind" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-core</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/&jacksonVersion;</bundle>
+    </feature>
+
+    <!-- modules -->
+
+    <feature name="jackson-module-jaxb-annotations" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/&jacksonVersion;</bundle>
+    </feature>
+
+    <!-- dataformat -->
+    <feature name="jackson-dataformat-avro" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle dependency="true">wrap:mvn:org.tukaani/xz/1.0</bundle>
+        <bundle dependency="true">mvn:org.apache.commons/commons-compress/1.4.1</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.paranamer/2.3_1</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/1.9.13</bundle>
+        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/1.9.13</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.avro/1.7.7_2</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-avro/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-dataformat-csv" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-csv/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-dataformat-cbor" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-dataformat-yaml" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-dataformat-protobuf" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle dependency="true">wrap:mvn:com.squareup/protoparser/4.0.0</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-protobuf/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-dataformat-xml" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+        <feature version="&jacksonVersion;">jackson-module-jaxb-annotations</feature>
+
+        <bundle dependency="true">mvn:org.codehaus.woodstox/stax2-api/&staxVersion;</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-dataformat-smile" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-smile/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-dataformat-properties" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-properties/&jacksonVersion;</bundle>
+    </feature>
+
+    <!-- data type -->
+    <feature name="jackson-datatype-joda" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle dependency="true">mvn:joda-time/joda-time/2.4</bundle>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-joda/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-datatype-guava" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle dependency="true">mvn:com.google.guava/guava/16.0</bundle>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-guava/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-datatype-jdk8" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk8/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-datatype-jsr310" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/&jacksonVersion;</bundle>
+    </feature>
+
+    <!-- jaxrs -->
+
+    <feature name="jackson-jaxrs-base" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-databind</feature>
+        <bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/&jaxrsSpecVersion;</bundle>
+
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-jaxrs-json-provider" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-jaxrs-base</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-jaxrs-cbor-provider" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-jaxrs-base</feature>
+        <feature version="&jacksonVersion;">jackson-dataformat-cbor</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-cbor-provider/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-jaxrs-smile-provider" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-jaxrs-base</feature>
+        <feature version="&jacksonVersion;">jackson-dataformat-smile</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-smile-provider/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-jaxrs-xml-provider" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-jaxrs-base</feature>
+        <feature version="&jacksonVersion;">jackson-dataformat-xml</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-xml-provider/&jacksonVersion;</bundle>
+    </feature>
+
+    <feature name="jackson-jaxrs-yaml-provider" version="&jacksonVersion;">
+        <feature version="&jacksonVersion;">jackson-jaxrs-base</feature>
+        <feature version="&jacksonVersion;">jackson-dataformat-yaml</feature>
+
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-yaml-provider/&jacksonVersion;</bundle>
+    </feature>
+
+
+</features>
