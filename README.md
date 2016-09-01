@@ -34,8 +34,15 @@ build.sh script can be used to build, tag and push Docker image.
 
 * Add the following arguments to enable JMX (replace hostname 'localhost' with valid value):
  * JMX URL: service:jmx:rmi://localhost:44444/jndi/rmi://localhost:1099/karaf-root
+ * note that port forwarding (1099, 44444) must be added to boot2docker VirtualBox VM if using Docker Toolbox for Windows
 
 ```-p 1099:1099 -p 44444:44444 --env EXTRA_JAVA_OPTS=-Djava.rmi.server.hostname=localhost```
 
 * Publish JVM metrics using collectd protocol (replace monitor_influxdb_1 with InfluxDB Docker container name)
 ```--link monitor_influxdb_1:influxsrv --env EXTRA_JAVA_OPTS='-javaagent:/usr/lib/jvm/collectd/jcollectd.jar -Djcd.dest=udp://influxsrv:25826 -Djcd.mx.interval=10 -Djcd.tmpl=/usr/lib/jvm/collectd/javalang,/usr/lib/jvm/collectd/dbcp2,/usr/lib/jvm/collectd/dozer,/usr/lib/jvm/collectd/ehcache -Djcd.instance=karaf-root'```
+
+* Specify deploy and log directories
+ * Linux: ```-v /var/lib/docker/shared-volumes/karaf/deploy:/deploy -v /var/lib/docker/shared-volumes/karaf/log:/opt/karaf/data/log```
+ * Windows: ```-v /c/Users/borcsokj/Docker/karaf/deploy:/deploy -v /c/Users/borcsokj/Docker/karaf/log:/opt/karaf/data/log``` (shared directory must be under user's home!)
+
+* Make VPN host available from Docker container (TODO)
