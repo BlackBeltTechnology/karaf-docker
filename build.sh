@@ -16,7 +16,7 @@ then
 fi
 
 docker build -t "${PREFIX}/karaf" --build-arg KARAF_VERSION="${KARAF_VERSION}" --build-arg CELLAR_VERSION="${CELLAR_VERSION}" "${CWD}"
-docker build -t "${PREFIX}/karaf:${KARAF_VERSION}" --build-arg KARAF_VERSION="${KARAF_VERSION}" --build-arg CELLAR_VERSION="${CELLAR_VERSION}" "${CWD}"
+docker tag "${PREFIX}/karaf" "${PREFIX}/karaf:${KARAF_VERSION}"
 
 if [ "x1" == "x${PUSH_DOCKER_IMAGE}" ]
 then
