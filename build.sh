@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 PREFIX=${DOCKER_PREFIX:-blackbelt}
 KARAF_VERSION="${KARAF_VERSION:-4.0.6}"
 CELLAR_VERSION="${CELLAR_VERSION:-4.0.1}"
