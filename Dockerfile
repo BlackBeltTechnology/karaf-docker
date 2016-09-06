@@ -25,7 +25,7 @@ RUN set -e \
         B0AD60200FE5031B \
         BFF2EE42C8282E76 \
     ; do \
-        gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+        gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key"; \
     done \
     && wget -O "/tmp/${TGZ_FILE_NAME}" "${KARAF_TGZ_URL}" \
     && wget -O "/tmp/${TGZ_FILE_NAME}.asc" "${KARAF_TGZ_URL}.asc" \
