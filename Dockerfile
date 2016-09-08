@@ -62,7 +62,7 @@ RUN set -e \
 # add feature repositories and install
 # Hawtio is disabled by default because of Maven indexer
 RUN set -e \
-    &&"${KARAF_HOME}/bin/start" \
+    && "${KARAF_HOME}/bin/start" \
     && sed -i "s/##JACKSON_VERSION##/${JACKSON_VERSION}/g" "${KARAF_HOME}/data/tmp/jackson-features.xml" \
     && sed -i "s/##JAXRS_SPEC_VERSION##/${JAXRS_SPEC_VERSION}/g" "${KARAF_HOME}/data/tmp/jackson-features.xml" \
     && echo -n "Waiting to start Karaf server in Docker image ..." \
