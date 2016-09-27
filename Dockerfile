@@ -8,7 +8,7 @@ ENV KARAF_HOME="/opt/karaf" \
     UID="${UID:-60000}"
 
 ENV HAWTIO_VERSION="1.4.65" \
-    JACKSON_VERSION="2.8.1" \
+    JACKSON_VERSION="2.8.3" \
     JAXRS_SPEC_VERSION="2.0.1"
 
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
