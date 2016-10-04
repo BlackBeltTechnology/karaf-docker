@@ -1,5 +1,7 @@
-FROM blackbelt/oraclejdk8
+FROM blackbelt/oraclejdk7
+
 MAINTAINER József Börcsök "jozsef.borcsok@blackbelt.hu"
+MAINTAINER Robert Csakany "robert.csakany@blackbelt.hu"
 
 ARG KARAF_VERSION
 ARG CELLAR_VERSION
@@ -14,7 +16,7 @@ ENV HAWTIO_VERSION="1.4.65" \
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
 
 ENV TGZ_FILE_NAME=apache-karaf-${KARAF_VERSION}.tar.gz
-ENV KARAF_TGZ_URL https://www.apache.org/dist/karaf/${KARAF_VERSION}/${TGZ_FILE_NAME}
+ENV KARAF_TGZ_URL=https://archive.apache.org/dist/karaf/${KARAF_VERSION}/${TGZ_FILE_NAME}
 
 ADD "features/jackson-features.xml" "/tmp"
 
