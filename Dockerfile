@@ -14,7 +14,8 @@ ENV HAWTIO_VERSION="1.4.65" \
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
 
 ENV TGZ_FILE_NAME=apache-karaf-${KARAF_VERSION}.tar.gz
-ENV KARAF_TGZ_URL https://www.apache.org/dist/karaf/${KARAF_VERSION}/${TGZ_FILE_NAME}
+ENV KARAF_TGZ_URL=https://www.apache.org/dist/karaf/${KARAF_VERSION}/${TGZ_FILE_NAME}
+ENV KARAF_TGZ_ARCHIVE_URL=https://archive.apache.org/dist/karaf/${KARAF_VERSION}/${TGZ_FILE_NAME}
 
 ADD "features/jackson-features.xml" "/tmp"
 
@@ -27,8 +28,8 @@ RUN set -e \
     ; do \
         gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key"; \
     done \
-    && wget -O "/tmp/${TGZ_FILE_NAME}" "${KARAF_TGZ_URL}" \
-    && wget -O "/tmp/${TGZ_FILE_NAME}.asc" "${KARAF_TGZ_URL}.asc" \
+    && (wget -O "/tmp/${TGZ_FILE_NAME}" "${KARAF_TGZ_URL}" || wget -O "/tmp/${TGZ_FILE_NAME}" "${KARAF_TGZ_ARCHIVE_URL}" ) \
+    && (wget -O "/tmp/${TGZ_FILE_NAME}.asc" "${KARAF_TGZ_URL}.asc" || wget -O "/tmp/${TGZ_FILE_NAME}.asc" "${KARAF_TGZ_ARCHIVE_URL}.asc" ) \
     && gpg --batch --verify "/tmp/${TGZ_FILE_NAME}.asc" "/tmp/${TGZ_FILE_NAME}" \
     && rm "/tmp/${TGZ_FILE_NAME}.asc" \
     && apk del build-dependencies
