@@ -41,7 +41,8 @@ RUN set -e \
     && mv /opt/apache-karaf* "${KARAF_HOME}" \
     && rm "${KARAF_HOME}/bin/"*.bat \
     && mkdir "/deploy" \
-    && sed -i 's/^\(felix\.fileinstall\.dir\s*=\s*\).*$/\1\/deploy/' "${KARAF_HOME}/etc/org.apache.felix.fileinstall-deploy.cfg" \
+    && cp "${KARAF_HOME}/etc/org.apache.felix.fileinstall-deploy.cfg" "${KARAF_HOME}/etc/org.apache.felix.fileinstall-external.cfg" \
+    && sed -i 's/^\(felix\.fileinstall\.dir\s*=\s*\).*$/\1\/deploy/' "${KARAF_HOME}/etc/org.apache.felix.fileinstall-external.cfg" \
     && ln -s "${KARAF_HOME}/bin/karaf" "/usr/bin/karaf" \
     && rm "/tmp/${TGZ_FILE_NAME}" \
     && mkdir "${KARAF_HOME}/data/log" \
@@ -77,6 +78,8 @@ RUN set -e \
     "${KARAF_HOME}/bin/stop" \
     && rm -f /tmp/jackson-features.xml \
     && rm -f "${KARAF_HOME}/instances/instance.properties"
+
+ADD "artifacts/karaf-jasypt-support.jar" "${KARAF_HOME}/deploy"
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]
