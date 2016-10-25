@@ -11,8 +11,8 @@ import org.osgi.framework.ServiceRegistration;
 @Slf4j
 public class Activator implements BundleActivator {
 
-    private static final String ENCRYPTION_ALGORITHM = "PBEWithSHA1AndDESEDE";
-    private static final String ENCRYPTION_PASSWORD_ENV_NAME = "ENCRYPTION_PASSWORD";
+    public static final String ENCRYPTION_ALGORITHM = "PBEWithSHA1AndDESEDE";
+    public static final String ENCRYPTION_PASSWORD_ENV_NAME = "ENCRYPTION_PASSWORD";
 
     private ServiceRegistration<StringEncryptor> stringEncryptor;
 
