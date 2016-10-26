@@ -4,6 +4,7 @@ import hu.blackbelt.karaf.jasypt.Activator;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Completion;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
@@ -13,19 +14,19 @@ import org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig;
 @Service
 public class Decrypt implements Action {
     
-    private static final String DEFAULT_OUTPUT_MODE = "base64";
-
     @Argument(index = 0, name = "text", description = "Text to decrypt", required = true, multiValued = false)
     private String text;
     
     @Option(name = "--algorithm", description = "Algorithm of encryption", required = false, multiValued = false)
+    @Completion(PBEAlgorithmCompleter.class)
     private String algorithm = Activator.ENCRYPTION_ALGORITHM;
 
     @Option(name = "--password", description = "Password for encryption", required = false, multiValued = false)
     private String password;
     
     @Option(name = "--outputType", description = "Output type", required = false, multiValued = false)
-    private String outputType = DEFAULT_OUTPUT_MODE;
+    @Completion(OutputTypeCompleter.class)
+    private String outputType = OutputTypeCompleter.BASE64;
 
     @Override
     public Object execute() {

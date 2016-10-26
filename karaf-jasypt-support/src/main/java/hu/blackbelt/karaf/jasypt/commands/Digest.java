@@ -3,6 +3,7 @@ package hu.blackbelt.karaf.jasypt.commands;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Completion;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.jasypt.digest.StandardStringDigester;
@@ -12,12 +13,11 @@ import org.jasypt.digest.config.EnvironmentStringDigesterConfig;
 @Service
 public class Digest implements Action {
     
-    private static final String DEFAULT_OUTPUT_MODE = "hexadecimal";
-
     @Argument(index = 0, name = "text", description = "Text to encrypt", required = true, multiValued = false)
     private String text;
 
     @Option(name = "--algorithm", description = "Digest method", required = false, multiValued = false)
+    @Completion(DigestAlgorithmCompleter.class)
     private String algorithm = "SHA";
 
     @Option(name = "--digest", description = "Digest value for validation", required = false, multiValued = false)
@@ -30,7 +30,8 @@ public class Digest implements Action {
     private Integer iterations;
     
     @Option(name = "--outputType", description = "Output type", required = false, multiValued = false)
-    private String outputType = DEFAULT_OUTPUT_MODE;
+    @Completion(OutputTypeCompleter.class)
+    private String outputType = OutputTypeCompleter.HEXADECIMAL;
 
     @Override
     public Object execute() {
