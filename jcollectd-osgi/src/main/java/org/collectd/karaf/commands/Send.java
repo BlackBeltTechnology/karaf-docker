@@ -7,8 +7,8 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.collectd.model.ValueType;
 import org.collectd.model.Values;
-import org.collectd.protocol.CollectdConstants;
 import org.collectd.service.CollectdSender;
 
 /**
@@ -34,7 +34,7 @@ public class Send implements Action {
     private String typeInstance;
 
     @Option(name = "--valueType", description = "Value type", required = false, multiValued = false)
-    private Byte valueType;
+    private ValueType valueType = ValueType.GAUGE;
 
     @Option(name = "--interval", description = "Interval", required = false, multiValued = false)
     private Long interval;
@@ -43,6 +43,7 @@ public class Send implements Action {
     private CollectdSender sender;
 
     @Override
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public Object execute() {
         final Values valueList = new Values();
 
@@ -54,7 +55,7 @@ public class Send implements Action {
         for (final Number number : values) {
             final Values.ValueHolder valueHolder = new Values.ValueHolder();
             valueHolder.setValue(number);
-            valueHolder.setType(valueType != null ? valueType : CollectdConstants.DATA_TYPE_GAUGE);
+            valueHolder.setType(valueType);
             valueList.getItems().add(valueHolder);
         }
         valueList.setInterval(interval);

@@ -15,6 +15,8 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.collectd.model.Notification;
 import org.collectd.model.PluginData;
+import org.collectd.model.Severity;
+import org.collectd.model.ValueType;
 import org.collectd.model.Values;
 
 /**
@@ -30,6 +32,12 @@ public class UdpPacketWriter {
 
     private DatagramSocket socket;
     private MulticastSocket mcast;
+
+    private static final int UINT8_LEN = 1;
+    private static final int UINT16_LEN = UINT8_LEN * 2;
+    private static final int UINT32_LEN = UINT16_LEN * 2;
+    private static final int UINT64_LEN = UINT32_LEN * 2;
+    private static final int HEADER_LEN = UINT16_LEN * 2;
 
     /**
      * Create new UDP packet writer instance. Default packet size is used.
@@ -99,7 +107,7 @@ public class UdpPacketWriter {
 
     private void flush() throws IOException {
         os.flush();
-        
+
         final byte[] buffer;
         synchronized (this) {
             buffer = bos.toByteArray();
@@ -110,9 +118,13 @@ public class UdpPacketWriter {
         if (length == 0) {
             return;
         }
-        
-        log.info("Sending UDP packet, buffer length: " + length);
-        log.info("Buffer data: " + Arrays.toString(buffer));
+
+        if (log.isDebugEnabled()) {
+            log.debug("Sending UDP packet, buffer length: " + length);
+        }
+        if (log.isTraceEnabled()) {
+            log.trace("Buffer data: " + Arrays.toString(buffer));
+        }
 
         final DatagramPacket packet = new DatagramPacket(buffer, length, server);
         if (server.getAddress().isMulticastAddress()) {
@@ -159,35 +171,35 @@ public class UdpPacketWriter {
         if (val == null || val.length() == 0) {
             return;
         }
-        final int len = CollectdConstants.HEADER_LEN + val.length() + 1;
+        final int len = HEADER_LEN + val.length() + 1;
         writeHeader(type, len);
         writeStringValue(val, true);
     }
 
     private void writeNumberPart(final short type, final long val) throws IOException {
-        final int len = CollectdConstants.HEADER_LEN + CollectdConstants.UINT64_LEN;
+        final int len = HEADER_LEN + UINT64_LEN;
         writeHeader(type, len);
         writeLongOrDateValue(val);
     }
 
     private void writeKeyParts(final PluginData data) throws IOException {
-        writeStringPart(CollectdConstants.TYPE_HOST, data.getHost());
-        writeNumberPart(CollectdConstants.TYPE_TIME, data.getTime() / 1000);
-        writeStringPart(CollectdConstants.TYPE_PLUGIN, data.getPlugin());
+        writeStringPart(PacketPartType.HOST.getCode(), data.getHost());
+        writeNumberPart(PacketPartType.TIME.getCode(), data.getTime() / 1000);
+        writeStringPart(PacketPartType.PLUGIN.getCode(), data.getPlugin());
         if (data.getPluginInstance() != null) {
-            writeStringPart(CollectdConstants.TYPE_PLUGIN_INSTANCE, data.getPluginInstance());
+            writeStringPart(PacketPartType.PLUGIN_INSTANCE.getCode(), data.getPluginInstance());
         }
         if (data.getType() != null) {
-            writeStringPart(CollectdConstants.TYPE_TYPE, data.getType());
+            writeStringPart(PacketPartType.TYPE.getCode(), data.getType());
         }
         if (data.getTypeInstance() != null) {
-            writeStringPart(CollectdConstants.TYPE_TYPE_INSTANCE, data.getTypeInstance());
+            writeStringPart(PacketPartType.TYPE_INSTANCE.getCode(), data.getTypeInstance());
         }
     }
 
     private void writeValuesPart(final List<Values.ValueHolder> values, final Long interval) throws IOException {
         final int num = values.size();
-        final int len = CollectdConstants.HEADER_LEN + CollectdConstants.UINT16_LEN + num * (CollectdConstants.UINT8_LEN + CollectdConstants.UINT64_LEN);
+        final int len = HEADER_LEN + UINT16_LEN + num * (UINT8_LEN + UINT64_LEN);
 
         final byte[] types = new byte[num];
         for (int i = 0; i < num; i++) {
@@ -196,53 +208,58 @@ public class UdpPacketWriter {
 
             if (holder.getType() == null) {
                 if (value instanceof Double) {
-                    types[i] = CollectdConstants.DATA_TYPE_GAUGE;
+                    types[i] = ValueType.GAUGE.getCode();
+                    holder.setType(ValueType.GAUGE);
                 } else {
-                    types[i] = CollectdConstants.DATA_TYPE_COUNTER;
+                    types[i] = ValueType.COUNTER.getCode();
+                    holder.setType(ValueType.COUNTER);
                 }
             } else {
-                types[i] = holder.getType();
+                types[i] = holder.getType().getCode();
             }
         }
 
-        writeHeader(CollectdConstants.TYPE_VALUES, len);
+        writeHeader(PacketPartType.VALUES.getCode(), len);
         writeShortValue(num);
         os.write(types);
 
-        for (int i = 0; i < num; i++) {
-            final Values.ValueHolder holder = values.get(i);
+        for (final Values.ValueHolder holder : values) {
             final Number value = holder.getValue();
+            final ValueType type = holder.getType();
 
-            switch (types[i]) {
-                case CollectdConstants.DATA_TYPE_COUNTER:
-                case CollectdConstants.DATA_TYPE_ABSOLUTE: {
+            switch (type) {
+                case COUNTER:
+                case ABSOLUTE: {
                     // unsigned, big-endian
                     writeLongOrDateValue(value.longValue());
                     break;
                 }
-                case CollectdConstants.DATA_TYPE_GAUGE: {
+                case GAUGE: {
                     // little-endian
                     writeDoubleValue(value.doubleValue());
                     break;
                 }
-                case CollectdConstants.DATA_TYPE_DERIVE: {
+                case DERIVE: {
                     // signed, big-endian
                     writeLongOrDateValue(value.longValue());
                     break;
                 }
                 default: {
-                    log.warn("Unsupported data type: " + types[i]);
+                    log.warn("Unsupported numeric value type: " + type);
                 }
             }
         }
 
         if (interval != null) {
-            writeNumberPart(CollectdConstants.TYPE_INTERVAL, interval);
+            writeNumberPart(PacketPartType.INTERVAL.getCode(), interval);
         }
     }
 
-    private void writeNotificationPart(final int severity, final String message) throws IOException {
-        writeNumberPart(CollectdConstants.TYPE_SEVERITY, severity);
-        writeStringPart(CollectdConstants.TYPE_MESSAGE, message);
+    private void writeNotificationPart(final Severity severity, final String message) throws IOException {
+        if (severity != null) {
+            writeNumberPart(PacketPartType.SEVERITY.getCode(), severity.getCode());
+        }
+
+        writeStringPart(PacketPartType.MESSAGE.getCode(), message);
     }
 }

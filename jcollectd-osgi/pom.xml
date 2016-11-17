@@ -81,6 +81,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
+                            org.collectd.model;version="${project.version}",
                             org.collectd.service;version="${project.version}"
                         </Export-Package>
                         <Import-Package>

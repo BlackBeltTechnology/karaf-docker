@@ -8,10 +8,6 @@ package org.collectd.model;
 @lombok.ToString
 public class Notification extends PluginData {
 
-    public static final int FAILURE = 1;
-    public static final int WARNING = 2;
-    public static final int OKAY = 4;
-
-    private int severity;
+    private Severity severity;
     private String message;
 }

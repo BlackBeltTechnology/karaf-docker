@@ -20,7 +20,7 @@ public class Values extends PluginData {
     @lombok.NoArgsConstructor
     public static class ValueHolder {
 
-        private Byte type;
+        private ValueType type;
         private Number value;
     }
 }

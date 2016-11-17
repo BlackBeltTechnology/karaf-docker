@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.collectd.model.ValueType;
 import org.collectd.model.Values;
-import org.collectd.protocol.CollectdConstants;
 import org.collectd.service.CollectdSender;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -25,7 +25,12 @@ public class CollectdEventHandler implements EventHandler {
     private List<CollectdSender> senders = new ArrayList<>();
 
     @Override
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public void handleEvent(final Event event) {
+        if (log.isTraceEnabled()) {
+            log.trace("Collectd event received, sending data to all destinations");
+        }
+        
         final Values valueList = new Values();
 
         valueList.setPlugin((String) event.getProperty("plugin"));
@@ -33,7 +38,9 @@ public class CollectdEventHandler implements EventHandler {
         valueList.setType((String) event.getProperty("type"));
         valueList.setTypeInstance((String) event.getProperty("typeInstance"));
 
-        final Byte valueType = parseValueType((String) event.getProperty("valueType"));
+        final String valueTypeProperty = (String) event.getProperty("valueType");
+        final ValueType valueType = ValueType.valueOf(valueTypeProperty);
+        
         final String intervalProperty = (String) event.getProperty("interval");
         if (intervalProperty != null) {
             valueList.setInterval(Long.parseLong(intervalProperty));
@@ -52,26 +59,6 @@ public class CollectdEventHandler implements EventHandler {
 
         for (final CollectdSender sender : senders) {
             sender.send(valueList);
-        }
-    }
-
-    private Byte parseValueType(final String value) {
-        if (value == null) {
-            return null;
-        }
-
-        switch (value) {
-            case "COUNTER":
-                return CollectdConstants.DATA_TYPE_COUNTER;
-            case "GAUGE":
-                return CollectdConstants.DATA_TYPE_GAUGE;
-            case "DERIVE":
-                return CollectdConstants.DATA_TYPE_DERIVE;
-            case "ABSOLUTE":
-                return CollectdConstants.DATA_TYPE_ABSOLUTE;
-            default:
-                log.warn("Invalid data type: " + value);
-                return null;
         }
     }
 }
