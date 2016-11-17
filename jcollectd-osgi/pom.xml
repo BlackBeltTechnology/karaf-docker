@@ -80,7 +80,9 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package/>
+                        <Export-Package>
+                            org.collectd.service;version="${project.version}"
+                        </Export-Package>
                         <Import-Package>
                             org.apache.felix.service.command,
                             org.apache.karaf.shell.commands,

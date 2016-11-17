@@ -1,5 +1,8 @@
-package org.collectd.api;
+package org.collectd.model;
 
+/**
+ * Notification data type.
+ */
 @lombok.Getter
 @lombok.Setter
 @lombok.ToString

@@ -7,9 +7,9 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.collectd.api.ValueList;
-import org.collectd.api.ValueType;
-import org.collectd.protocol.Sender;
+import org.collectd.model.Values;
+import org.collectd.protocol.CollectdConstants;
+import org.collectd.service.CollectdSender;
 
 /**
  * Submit a collectd packet.
@@ -32,33 +32,33 @@ public class Send implements Action {
 
     @Option(name = "--typeInstance", description = "Type", required = false, multiValued = false)
     private String typeInstance;
-    
+
     @Option(name = "--valueType", description = "Value type", required = false, multiValued = false)
-    private ValueType valueType;
-    
+    private Byte valueType;
+
     @Option(name = "--interval", description = "Interval", required = false, multiValued = false)
     private Long interval;
-    
+
     @Reference
-    private Sender sender;
+    private CollectdSender sender;
 
     @Override
     public Object execute() {
-        final ValueList valueList = new ValueList();
-        
+        final Values valueList = new Values();
+
         valueList.setPlugin(plugin);
         valueList.setPluginInstance(pluginInstance);
         valueList.setType(type);
         valueList.setTypeInstance(typeInstance);
-        
+
         for (final Number number : values) {
-            final ValueList.ValueHolder valueHolder = new ValueList.ValueHolder();
+            final Values.ValueHolder valueHolder = new Values.ValueHolder();
             valueHolder.setValue(number);
-            valueHolder.setType(valueType);
-            valueList.getValues().add(valueHolder);
-            valueList.setInterval(interval);
+            valueHolder.setType(valueType != null ? valueType : CollectdConstants.DATA_TYPE_GAUGE);
+            valueList.getItems().add(valueHolder);
         }
-        
+        valueList.setInterval(interval);
+
         sender.send(valueList);
         return null;
     }

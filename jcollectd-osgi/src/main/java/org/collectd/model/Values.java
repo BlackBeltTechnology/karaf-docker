@@ -1,14 +1,17 @@
-package org.collectd.api;
+package org.collectd.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Numeric values data type.
+ */
 @lombok.Getter
 @lombok.Setter
 @lombok.ToString
-public class ValueList extends PluginData {
+public class Values extends PluginData {
 
-    private List<ValueHolder> values = new ArrayList<>();
+    private List<ValueHolder> items = new ArrayList<>();
     private Long interval;
 
     @lombok.Getter
@@ -17,7 +20,7 @@ public class ValueList extends PluginData {
     @lombok.NoArgsConstructor
     public static class ValueHolder {
 
+        private Byte type;
         private Number value;
-        private ValueType type;
     }
 }
