@@ -39,7 +39,7 @@ build.sh script can be used to build, tag and push Docker image.
 ```-p 1099:1099 -p 44444:44444 --env EXTRA_JAVA_OPTS=-Djava.rmi.server.hostname=localhost```
 
 * Publish JVM metrics using collectd protocol (replace monitor_influxdb_1 with InfluxDB Docker container name)
-```--link monitor_influxdb_1:influxsrv --env EXTRA_JAVA_OPTS='-javaagent:/usr/lib/jvm/collectd/jcollectd.jar -Djcd.dest=udp://influxsrv:25826 -Djcd.mx.interval=10 -Djcd.tmpl=/usr/lib/jvm/collectd/javalang,/usr/lib/jvm/collectd/dbcp2,/usr/lib/jvm/collectd/dozer,/usr/lib/jvm/collectd/ehcache -Djcd.instance=karaf-root'```
+```--link monitor_influxdb_1:influxsrv --env EXTRA_JAVA_OPTS='-javaagent:/usr/lib/jvm/collectd/collectd.jar=/usr/lib/jvm/collectd/javalang-collectd.xml,/usr/lib/jvm/collectd/dbcp2-collectd.xml,/usr/lib/jvm/collectd/dozer-collectd.xml,/usr/lib/jvm/collectd/ehcache-collectd.xml -Dcollectd.host=influxsrv -Dcollectd.port=25826 -Dcollectd.interval=10 -Dcollectd.instance=karaf-root'```
 
 * Specify deploy and log directories
  * Linux: ```-v /var/lib/docker/shared-volumes/karaf/deploy:/deploy -v /var/lib/docker/shared-volumes/karaf/log:/opt/karaf/data/log```
