@@ -58,6 +58,7 @@ WORKDIR "${KARAF_HOME}"
 # set Java options, add "-XX:+UnlockCommercialFeatures -XX:+FlightRecorder" options to EXTRA_JAVA_OPTS environement variable to unlock commercial features
 # workaround for version>=4.0.5: replace /bin/bash back to /bin/sh (Bash is not part of the image)
 RUN set -e \
+    && echo -e "encryption.algorithm=PBEWithSHA1AndDESEDE\nencryption.passwordEnvName=ENCRYPTION_PASSWORD\nencryptor.alias=default" > "${KARAF_HOME}/etc/hu.blackbelt.karaf.jasypt.services.DefaultStringEncryptorConfig.cfg" \
     && echo 'export EXTRA_JAVA_OPTS="${EXTRA_JAVA_OPTS} -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -Duser.timezone=UTC -Duser.language=en -Duser.country=US"' >> "${KARAF_HOME}/bin/setenv" \
     && sed s/'#!\/bin\/bash'/'#!\/bin\/sh'/ -i "${KARAF_HOME}/bin/karaf"
 
