@@ -8,7 +8,7 @@ ENV KARAF_HOME="/opt/karaf" \
     UID="${UID:-60000}"
 
 ENV HAWTIO_VERSION="1.4.68" \
-    JACKSON_VERSION="2.8.5" \
+    JACKSON_VERSION="2.8.6" \
     JAXRS_SPEC_VERSION="2.0.1"
 
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
@@ -75,7 +75,8 @@ RUN set -e \
     feature:repo-add file:///${KARAF_HOME}/data/tmp/jackson-features.xml; \
 #    feature:install webconsole; \
 #    feature:install hawtio; \
-    feature:install scr" | "${KARAF_HOME}/bin/client" -h localhost -b; \
+    feature:install scr; \
+    feature:install eventadmin" | "${KARAF_HOME}/bin/client" -h localhost -b; \
     "${KARAF_HOME}/bin/stop" \
     && rm -f /tmp/jackson-features.xml \
     && rm -f "${KARAF_HOME}/instances/instance.properties"
