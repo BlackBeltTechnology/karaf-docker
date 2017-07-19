@@ -7,9 +7,11 @@ ARG CELLAR_VERSION
 ENV KARAF_HOME="/opt/karaf" \
     UID="${UID:-60000}"
 
-ENV HAWTIO_VERSION="1.5.1" \
-    JACKSON_VERSION="2.8.7" \
-    JAXRS_SPEC_VERSION="2.0.1"
+ENV HAWTIO_VERSION="1.5.2" \
+    JACKSON_VERSION="2.8.9" \
+    JAXRS_SPEC_VERSION="2.0.1" \
+    COLLECTD_VERSION="1.0.1" \
+    OSGI_ENCRYPTION_VERSION="1.0.2" 
 
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
 
@@ -73,6 +75,8 @@ RUN set -e \
     && echo "feature:repo-add mvn:io.hawt/hawtio-karaf/${HAWTIO_VERSION}/xml/features; \
     feature:repo-add mvn:org.apache.karaf.cellar/apache-karaf-cellar/${CELLAR_VERSION}/xml/features; \
     feature:repo-add file:///${KARAF_HOME}/data/tmp/jackson-features.xml; \
+    feature:repo-add mvn:hu.blackbelt/collectd-feature/${COLLECTD_VERSION}/xml/karaf4-features; \
+    feature:repo-add mvn:hu.blackbelt/osgi-encryption-karaf-feature/${OSGI_ENCRYPTION_VERSION}/xml/karaf4-features; \
 #    feature:install webconsole; \
 #    feature:install hawtio; \
     feature:install scr; \
@@ -80,8 +84,6 @@ RUN set -e \
     "${KARAF_HOME}/bin/stop" \
     && rm -f /tmp/jackson-features.xml \
     && rm -f "${KARAF_HOME}/instances/instance.properties"
-
-ADD "artifacts/karaf-jasypt-support.jar" "${KARAF_HOME}/deploy"
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]
