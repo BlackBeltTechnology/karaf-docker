@@ -7,9 +7,7 @@ ARG CELLAR_VERSION
 ENV KARAF_HOME="/opt/karaf" \
     UID="${UID:-60000}"
 
-ENV HAWTIO_VERSION="1.5.4" \
-    COLLECTD_VERSION="1.0.1" \
-    OSGI_ENCRYPTION_VERSION="1.0.2" 
+ENV HAWTIO_VERSION="1.5.5"
 
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
 
@@ -60,22 +58,18 @@ WORKDIR "${KARAF_HOME}"
 RUN set -e \
     && echo -e "encryption.algorithm=PBEWithSHA1AndDESEDE\nencryption.passwordEnvName=ENCRYPTION_PASSWORD\nencryptor.alias=default" > "${KARAF_HOME}/etc/hu.blackbelt.karaf.jasypt.services.DefaultStringEncryptorConfig.cfg" \
     && echo 'export EXTRA_JAVA_OPTS="${EXTRA_JAVA_OPTS} -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -Duser.timezone=UTC -Duser.language=en -Duser.country=US"' >> "${KARAF_HOME}/bin/setenv" \
-    && sed s/'#!\/bin\/bash'/'#!\/bin\/sh'/ -i "${KARAF_HOME}/bin/karaf"
+    && sed s/'#!\/bin\/bash'/'#!\/bin\/sh'/ -i "${KARAF_HOME}/bin/karaf" \
+    && echo "hawtio=mvn:io.hawt/hawtio-karaf/${HAWTIO_VERSION}/xml/features" >> "${KARAF_HOME}/etc/org.apache.karaf.features.repos.cfg"
 
 # add feature repositories and install
 # Hawtio is disabled by default because of Maven indexer
-RUN set -e \
-    && "${KARAF_HOME}/bin/start" \
-    && echo -n "Waiting to start Karaf server in Docker image ..." \
-    && connecting=1; while [ ${connecting} -ne 0 ]; do sleep 2; timeout -t 10 "${KARAF_HOME}/bin/client" -h localhost version; connecting=$?; done \
-    && echo "feature:repo-add mvn:io.hawt/hawtio-karaf/${HAWTIO_VERSION}/xml/features; \
-    feature:repo-add mvn:org.apache.karaf.cellar/apache-karaf-cellar/${CELLAR_VERSION}/xml/features; \
-    feature:repo-add mvn:hu.blackbelt/collectd-feature/${COLLECTD_VERSION}/xml/karaf4-features; \
-    feature:repo-add mvn:hu.blackbelt/osgi-encryption-karaf-feature/${OSGI_ENCRYPTION_VERSION}/xml/karaf4-features; \
-    feature:install scr; \
-    feature:install eventadmin; \
-    system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
-    && rm -f "${KARAF_HOME}/instances/instance.properties"
+#RUN set -e \
+#    && "${KARAF_HOME}/bin/start" \
+#    && echo -n "Waiting to start Karaf server in Docker image ..." \
+#    && connecting=1; while [ ${connecting} -ne 0 ]; do sleep 2; timeout -t 10 "${KARAF_HOME}/bin/client" -h localhost version; connecting=$?; done \
+#    && echo "feature:repo-add ...; \
+#    system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
+#    && rm -f "${KARAF_HOME}/instances/instance.properties"
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]
