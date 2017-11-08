@@ -74,7 +74,8 @@ RUN set -e \
     feature:repo-add mvn:hu.blackbelt/osgi-encryption-karaf-feature/${OSGI_ENCRYPTION_VERSION}/xml/karaf4-features; \
     feature:install scr; \
     feature:install eventadmin; \
-    system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b
+    system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
+    && rm -f "${KARAF_HOME}/instances/instance.properties"
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]
