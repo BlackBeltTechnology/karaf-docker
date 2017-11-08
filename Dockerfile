@@ -8,8 +8,6 @@ ENV KARAF_HOME="/opt/karaf" \
     UID="${UID:-60000}"
 
 ENV HAWTIO_VERSION="1.5.4" \
-    JACKSON_VERSION="2.8.9" \
-    JAXRS_SPEC_VERSION="2.0.1" \
     COLLECTD_VERSION="1.0.1" \
     OSGI_ENCRYPTION_VERSION="1.0.2" 
 
@@ -18,8 +16,6 @@ RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argumen
 ENV TGZ_FILE_NAME=apache-karaf-${KARAF_VERSION}.tar.gz
 ENV KARAF_TGZ_URL=https://www.apache.org/dist/karaf/${KARAF_VERSION}/${TGZ_FILE_NAME}
 ENV KARAF_TGZ_ARCHIVE_URL=https://archive.apache.org/dist/karaf/${KARAF_VERSION}/${TGZ_FILE_NAME}
-
-ADD "features/jackson-features.xml" "/tmp"
 
 # download Apache Karaf and verify signature, see https://www.apache.org/dist/karaf/KEYS
 RUN set -e \
@@ -52,7 +48,6 @@ RUN set -e \
     && rm "/tmp/${TGZ_FILE_NAME}" \
     && mkdir "${KARAF_HOME}/data/log" \
     && mkdir "${KARAF_HOME}/data/mavenIndexer" \
-    && mv /tmp/*-features.xml "${KARAF_HOME}/data/tmp" \
     && adduser -HD -u "${UID}" -h "${KARAF_HOME}" -s "/bin/sh" -G "users" "karaf" \
     && chown -R "karaf" "${KARAF_HOME}" \
     && chown "karaf" "/deploy"
@@ -71,22 +66,15 @@ RUN set -e \
 # Hawtio is disabled by default because of Maven indexer
 RUN set -e \
     && "${KARAF_HOME}/bin/start" \
-    && sed -i "s/##JACKSON_VERSION##/${JACKSON_VERSION}/g" "${KARAF_HOME}/data/tmp/jackson-features.xml" \
-    && sed -i "s/##JAXRS_SPEC_VERSION##/${JAXRS_SPEC_VERSION}/g" "${KARAF_HOME}/data/tmp/jackson-features.xml" \
     && echo -n "Waiting to start Karaf server in Docker image ..." \
     && connecting=1; while [ ${connecting} -ne 0 ]; do sleep 2; timeout -t 10 "${KARAF_HOME}/bin/client" -h localhost version; connecting=$?; done \
     && echo "feature:repo-add mvn:io.hawt/hawtio-karaf/${HAWTIO_VERSION}/xml/features; \
     feature:repo-add mvn:org.apache.karaf.cellar/apache-karaf-cellar/${CELLAR_VERSION}/xml/features; \
-    feature:repo-add file:///${KARAF_HOME}/data/tmp/jackson-features.xml; \
     feature:repo-add mvn:hu.blackbelt/collectd-feature/${COLLECTD_VERSION}/xml/karaf4-features; \
     feature:repo-add mvn:hu.blackbelt/osgi-encryption-karaf-feature/${OSGI_ENCRYPTION_VERSION}/xml/karaf4-features; \
-#    feature:install webconsole; \
-#    feature:install hawtio; \
     feature:install scr; \
-    feature:install eventadmin" | "${KARAF_HOME}/bin/client" -h localhost -b; \
-    "${KARAF_HOME}/bin/stop" \
-    && rm -f /tmp/jackson-features.xml \
-    && rm -f "${KARAF_HOME}/instances/instance.properties"
+    feature:install eventadmin; \
+    system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]
