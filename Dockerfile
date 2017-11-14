@@ -2,7 +2,6 @@ FROM blackbelt/oraclejdk8
 MAINTAINER József Börcsök "jozsef.borcsok@blackbelt.hu"
 
 ARG KARAF_VERSION
-ARG CELLAR_VERSION
 
 ENV KARAF_HOME="/opt/karaf" \
     UID="${UID:-60000}"
@@ -63,13 +62,14 @@ RUN set -e \
 
 # add feature repositories and install
 # Hawtio is disabled by default because of Maven indexer
-#RUN set -e \
-#    && "${KARAF_HOME}/bin/start" \
-#    && echo -n "Waiting to start Karaf server in Docker image ..." \
-#    && connecting=1; while [ ${connecting} -ne 0 ]; do sleep 2; timeout -t 10 "${KARAF_HOME}/bin/client" -h localhost version; connecting=$?; done \
-#    && echo "feature:repo-add ...; \
-#    system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
-#    && rm -f "${KARAF_HOME}/instances/instance.properties"
+RUN set -e \
+    && "${KARAF_HOME}/bin/start" \
+    && echo -n "Waiting to start Karaf server in Docker image ..." \
+    && connecting=1; while [ ${connecting} -ne 0 ]; do sleep 2; timeout -t 10 "${KARAF_HOME}/bin/client" -h localhost version; connecting=$?; done \
+    && echo "feature:repo-add cellar; \
+    feature:install scr cellar cellar-eventadmin; \
+    system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
+    && rm -f "${KARAF_HOME}/instances/instance.properties"
 
 VOLUME ["/deploy"]
 VOLUME ["${KARAF_HOME}/data/log"]

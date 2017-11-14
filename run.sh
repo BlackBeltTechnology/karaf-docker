@@ -43,7 +43,7 @@ then
     DAEMON_OPTS="-d --name karaf-${app}"
 fi
 
-echo docker run -it --rm ${DAEMON_OPTS} \
+docker run -it --rm ${DAEMON_OPTS} \
 	--hostname "${DOCKER_HOSTNAME}" \
 	-p "${KARAF_HTTP_PORT}:8181" \
 	-p "${KARAF_SSH_PORT}:8101" \
@@ -58,15 +58,15 @@ echo docker run -it --rm ${DAEMON_OPTS} \
 	"${DOCKER_IMAGE_NAME}"
 
 NUMBER_OF_NODES=1
-echo docker service create -td --name ${app} ${DNS_OPTS} --replicas ${NUMBER_OF_NODES} \
-	-p "${KARAF_HTTP_PORT}:8181" \
-        -p "${KARAF_SSH_PORT}:8101" \
-        -p "${KARAF_DEBUGGER_PORT}:5005" \
-        -p "${KARAF_RMI_REGISTRY_PORT}:1099" \
-        -p "${KARAF_RMI_SERVER_PORT}:${KARAF_RMI_SERVER_PORT}" \
-	--env "KARAF_DEBUG=${KARAF_DEBUG}" \
-        --env "SECRETS=${SECRETS_DIR}" \
-        --env "EXTRA_JAVA_OPTS=${EXTRA_JAVA_OPTS}" \
-        --env "RMI_SERVER_PORT=${RMI_SERVER_PORT}" \
-	"${DOCKER_IMAGE_NAME}"
+#echo docker service create -td --name ${app} ${DNS_OPTS} --replicas ${NUMBER_OF_NODES} \
+#	-p "${KARAF_HTTP_PORT}:8181" \
+#        -p "${KARAF_SSH_PORT}:8101" \
+#        -p "${KARAF_DEBUGGER_PORT}:5005" \
+#        -p "${KARAF_RMI_REGISTRY_PORT}:1099" \
+#        -p "${KARAF_RMI_SERVER_PORT}:${KARAF_RMI_SERVER_PORT}" \
+#	--env "KARAF_DEBUG=${KARAF_DEBUG}" \
+#        --env "SECRETS=${SECRETS_DIR}" \
+#        --env "EXTRA_JAVA_OPTS=${EXTRA_JAVA_OPTS}" \
+#        --env "RMI_SERVER_PORT=${RMI_SERVER_PORT}" \
+#	"${DOCKER_IMAGE_NAME}"
 
