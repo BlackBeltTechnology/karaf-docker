@@ -69,6 +69,8 @@ RUN set -e \
     && echo "feature:repo-add cellar; \
     feature:install scr cellar cellar-eventadmin; \
     system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
+    && sed s/'<interfaces enabled="false">'/'<interfaces enabled="true">'/ -i "${KARAF_HOME}/etc/hazelcast.xml" \
+    && sed s/'<interface>10\.10\.1\.\*<\/interface>'/'<interface>${hazelcast.interface}<\/interface>'/ -i "${KARAF_HOME}/etc/hazelcast.xml" \
     && rm -f "${KARAF_HOME}/instances/instance.properties"
 
 VOLUME ["/deploy"]
