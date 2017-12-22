@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PREFIX=${DOCKER_PREFIX:-blackbelt}
-KARAF_VERSION="${KARAF_VERSION:-4.1.3}"
+KARAF_VERSION="${KARAF_VERSION:-4.1.4}"
 
 CWD=`dirname $0`
 ARTIFACTS_DIR="${CWD}/artifacts"
