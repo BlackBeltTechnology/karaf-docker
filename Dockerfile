@@ -6,7 +6,7 @@ ARG KARAF_VERSION
 ENV KARAF_HOME="/opt/karaf" \
     UID="${UID:-60000}"
 
-ENV HAWTIO_VERSION="1.5.5"
+ENV HAWTIO_VERSION="1.5.6"
 
 RUN if [ -z "${KARAF_VERSION}" ]; then echo -e "\033[0;31mRequired build argument is missing: KARAF_VERSION\033[0m"; exit 1; fi
 
