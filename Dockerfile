@@ -71,6 +71,7 @@ RUN set -e \
     system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
     && sed s/'<interfaces enabled="false">'/'<interfaces enabled="true">'/ -i "${KARAF_HOME}/etc/hazelcast.xml" \
     && sed s/'<interface>10\.10\.1\.\*<\/interface>'/'<interface>${hazelcast.interface}<\/interface>'/ -i "${KARAF_HOME}/etc/hazelcast.xml" \
+    && echo 'if [[ "${EXTRA_JAVA_OPTS}" != *"-Dhazelcast.interface="* ]]; then export EXTRA_JAVA_OPTS="${EXTRA_JAVA_OPTS} -Dhazelcast.interface=127.0.0.1"; echo 'ADDED'; else echo 'ALREADY ADDED'; fi' >> "${KARAF_HOME}/bin/setenv" \
     && rm -f "${KARAF_HOME}/instances/instance.properties"
 
 VOLUME ["/deploy"]
