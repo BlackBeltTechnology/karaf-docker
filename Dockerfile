@@ -55,7 +55,6 @@ WORKDIR "${KARAF_HOME}"
 # set Java options, add "-XX:+UnlockCommercialFeatures -XX:+FlightRecorder" options to EXTRA_JAVA_OPTS environement variable to unlock commercial features
 # workaround for version>=4.0.5: replace /bin/bash back to /bin/sh (Bash is not part of the image)
 RUN set -e \
-    && echo -e "encryption.algorithm=PBEWithSHA1AndDESEDE\nencryption.passwordEnvName=ENCRYPTION_PASSWORD\nencryptor.alias=default" > "${KARAF_HOME}/etc/hu.blackbelt.karaf.jasypt.services.DefaultStringEncryptorConfig.cfg" \
     && echo 'export EXTRA_JAVA_OPTS="${EXTRA_JAVA_OPTS} -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -Duser.timezone=UTC -Duser.language=en -Duser.country=US"' >> "${KARAF_HOME}/bin/setenv" \
     && sed s/'#!\/bin\/bash'/'#!\/bin\/sh'/ -i "${KARAF_HOME}/bin/karaf" \
     && echo "hawtio=mvn:io.hawt/hawtio-karaf/${HAWTIO_VERSION}/xml/features" >> "${KARAF_HOME}/etc/org.apache.karaf.features.repos.cfg"
@@ -71,7 +70,7 @@ RUN set -e \
     system:shutdown -f" | "${KARAF_HOME}/bin/client" -h localhost -b \
     && sed s/'<interfaces enabled="false">'/'<interfaces enabled="true">'/ -i "${KARAF_HOME}/etc/hazelcast.xml" \
     && sed s/'<interface>10\.10\.1\.\*<\/interface>'/'<interface>${hazelcast.interface}<\/interface>'/ -i "${KARAF_HOME}/etc/hazelcast.xml" \
-    && echo 'if [[ "${EXTRA_JAVA_OPTS}" != *"-Dhazelcast.interface="* ]]; then export EXTRA_JAVA_OPTS="${EXTRA_JAVA_OPTS} -Dhazelcast.interface=127.0.0.1"; echo 'ADDED'; else echo 'ALREADY ADDED'; fi' >> "${KARAF_HOME}/bin/setenv" \
+    && echo 'if [[ "${EXTRA_JAVA_OPTS}" != *"-Dhazelcast.interface="* ]]; then export EXTRA_JAVA_OPTS="${EXTRA_JAVA_OPTS} -Dhazelcast.interface=127.0.0.1"; fi' >> "${KARAF_HOME}/bin/setenv" \
     && rm -f "${KARAF_HOME}/instances/instance.properties"
 
 VOLUME ["/deploy"]
